@@ -12,6 +12,7 @@ donationRouter.use(bodyParser.json());
 donationRouter.route('/')
     .get((req,res,next) => {
         Donations.find({})
+            .populate('comments.author')
             .then((donations) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -46,6 +47,7 @@ donationRouter.route('/')
 donationRouter.route('/:donationId')
     .get((req,res,next) => {
         Donations.findById(req.params.donationId)
+            .populate('comments.author')
             .then((donation) => {
                 res.statusCode = 200;
                 res.setHeader('Content-Type', 'application/json');
@@ -81,6 +83,7 @@ donationRouter.route('/:donationId')
 donationRouter.route('/:donationId/comments')
     .get((req,res,next) => {
         Donations.findById(req.params.donationId)
+            .populate('comments.author')
             .then((donation) => {
                 if (donation != null) {
                     res.statusCode = 200;
@@ -99,12 +102,17 @@ donationRouter.route('/:donationId/comments')
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null) {
+                    req.body.author = req.user._id;
                     donation.comments.push(req.body);
                     donation.save()
                         .then((donation) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(donation);
+                            Donations.findById(donation._id)
+                                .populate('comments.author')
+                                .then((donation) => {
+                                    res.statusCode = 200;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.json(donation);
+                                })
                         }, (err) => next(err));
                 }
                 else {
@@ -146,6 +154,7 @@ donationRouter.route('/:donationId/comments')
 donationRouter.route('/:donationId/comments/:commentId')
     .get((req,res,next) => {
         Donations.findById(req.params.donationId)
+            .populate('comments.author')
             .then((donation) => {
                 if (donation != null && donation.comments.id(req.params.commentId) != null) {
                     res.statusCode = 200;
@@ -180,14 +189,16 @@ donationRouter.route('/:donationId/comments/:commentId')
                     if (req.body.comment) {
                         donation.comments.id(req.params.commentId).comment = req.body.comment;
                     }
-                    if (req.body.author) {
-                        donation.comments.id(req.params.commentId).author = req.body.author;
-                    }
+
                     donation.save()
                         .then((donation) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(donation);
+                            Donations.findById(donation._id)
+                                .populate('comments.author')
+                                .then((donation) => {
+                                    res.statusCode = 200;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.json(donation);
+                                })
                         }, (err) => next(err));
                 }
                 else if (donation == null) {
@@ -210,9 +221,13 @@ donationRouter.route('/:donationId/comments/:commentId')
                     donation.comments.id(req.params.commentId).remove();
                     donation.save()
                         .then((donation) => {
-                            res.statusCode = 200;
-                            res.setHeader('Content-Type', 'application/json');
-                            res.json(donation);
+                            Donations.findById(donation._id)
+                                .populate('comments.author')
+                                .then((donation) => {
+                                    res.statusCode = 200;
+                                    res.setHeader('Content-Type', 'application/json');
+                                    res.json(donation);
+                                })
                         }, (err) => next(err));
                 }
                 else if (donation == null) {
