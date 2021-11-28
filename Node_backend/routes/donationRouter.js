@@ -1,6 +1,7 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
+var authenticate = require('../authenticate');
 
 const Donations = require('../models/donations');
 
@@ -18,7 +19,7 @@ donationRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser,(req, res, next) => {
         Donations.create(req.body)
             .then((donation) => {
                 console.log('Donation Created ', donation);
@@ -28,11 +29,11 @@ donationRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /donations');
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Donations.remove({})
             .then((resp) => {
                 res.statusCode = 200;
@@ -52,11 +53,11 @@ donationRouter.route('/:donationId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, (req, res, next) =>{
         res.statusCode = 403;
         res.end('POST operation not supported on /donations/'+ req.params.donationId);
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         Donations.findByIdAndUpdate(req.params.donationId, {
             $set: req.body
         }, { new: true })
@@ -67,7 +68,7 @@ donationRouter.route('/:donationId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Donations.findByIdAndRemove(req.params.donationId)
             .then((resp) => {
                 res.statusCode = 200;
@@ -94,7 +95,7 @@ donationRouter.route('/:donationId/comments')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null) {
@@ -114,12 +115,12 @@ donationRouter.route('/:donationId/comments')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /donations/'
             + req.params.donationId + '/comments');
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null) {
@@ -164,12 +165,12 @@ donationRouter.route('/:donationId/comments/:commentId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post((req, res, next) => {
+    .post(authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /donations/'+ req.params.donationId
             + '/comments/' + req.params.commentId);
     })
-    .put((req, res, next) => {
+    .put(authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null && donation.comments.id(req.params.commentId) != null) {
@@ -202,7 +203,7 @@ donationRouter.route('/:donationId/comments/:commentId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .delete((req, res, next) => {
+    .delete(authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null && donation.comments.id(req.params.commentId) != null) {

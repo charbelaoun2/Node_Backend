@@ -5,18 +5,21 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session');
 var FileStore = require('session-file-store')(session);
+var passport = require('passport');
+var authenticate = require('./authenticate');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var donationRouter = require('./routes/donationRouter');
 var promoRouter = require('./routes/promoRouter');
 var leaderRouter = require('./routes/leaderRouter');
+var config = require('./config')
 
 const mongoose = require('mongoose');
 
 const Donations = require('./models/donations');
 
-const url = 'mongodb://localhost:27017/operationMC';
-const connect = mongoose.connect(url);
+const url = config.mongoUrl;
+const connect = mongoose.connect(url, { useFindAndModify: false });
 
 connect.then((db) => {
   console.log("Connected correctly to server");
@@ -27,13 +30,16 @@ let app = express();
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+
+app.use(passport.initialize());
 
 
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
+app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/donations',donationRouter);
 app.use('/promotions',promoRouter);
