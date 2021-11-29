@@ -2,7 +2,7 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 var authenticate = require('../authenticate');
-
+const cors = require('./cors');
 const Donations = require('../models/donations');
 
 const donationRouter = express.Router();
@@ -10,7 +10,8 @@ const donationRouter = express.Router();
 donationRouter.use(bodyParser.json());
 
 donationRouter.route('/')
-    .get((req,res,next) => {
+    .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
+    .get(cors.cors, (req,res,next) => {
         Donations.find({})
             .populate('comments.author')
             .then((donations) => {
@@ -20,7 +21,7 @@ donationRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Donations.create(req.body)
             .then((donation) => {
                 console.log('Donation Created ', donation);
@@ -30,11 +31,11 @@ donationRouter.route('/')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /donations');
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Donations.remove({})
             .then((resp) => {
                 res.statusCode = 200;
@@ -45,7 +46,8 @@ donationRouter.route('/')
     });
 
 donationRouter.route('/:donationId')
-    .get((req,res,next) => {
+    .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
+    .get(cors.cors, (req,res,next) => {
         Donations.findById(req.params.donationId)
             .populate('comments.author')
             .then((donation) => {
@@ -55,11 +57,11 @@ donationRouter.route('/:donationId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /donations/'+ req.params.donationId);
     })
-    .put(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Donations.findByIdAndUpdate(req.params.donationId, {
             $set: req.body
         }, { new: true })
@@ -70,7 +72,7 @@ donationRouter.route('/:donationId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Donations.findByIdAndRemove(req.params.donationId)
             .then((resp) => {
                 res.statusCode = 200;
@@ -81,7 +83,8 @@ donationRouter.route('/:donationId')
     });
 
 donationRouter.route('/:donationId/comments')
-    .get((req,res,next) => {
+    .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
+    .get(cors.cors, (req,res,next) => {
         Donations.findById(req.params.donationId)
             .populate('comments.author')
             .then((donation) => {
@@ -98,7 +101,7 @@ donationRouter.route('/:donationId/comments')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post(authenticate.verifyUser, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null) {
@@ -123,12 +126,12 @@ donationRouter.route('/:donationId/comments')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .put(authenticate.verifyUser, (req, res, next) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end('PUT operation not supported on /donations/'
             + req.params.donationId + '/comments');
     })
-    .delete(authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, authenticate.verifyAdmin, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null) {
@@ -152,7 +155,8 @@ donationRouter.route('/:donationId/comments')
     });
 
 donationRouter.route('/:donationId/comments/:commentId')
-    .get((req,res,next) => {
+    .options(cors.corsWithOptions, (req, res) => { res.sendStatus(200); })
+    .get(cors.cors, (req,res,next) => {
         Donations.findById(req.params.donationId)
             .populate('comments.author')
             .then((donation) => {
@@ -174,12 +178,12 @@ donationRouter.route('/:donationId/comments/:commentId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .post(authenticate.verifyUser, (req, res, next) => {
+    .post(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         res.statusCode = 403;
         res.end('POST operation not supported on /donations/'+ req.params.donationId
             + '/comments/' + req.params.commentId);
     })
-    .put(authenticate.verifyUser, (req, res, next) => {
+    .put(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation !== null && donation.comments.id(req.params.commentId) !== null){
@@ -224,7 +228,7 @@ donationRouter.route('/:donationId/comments/:commentId')
             }, (err) => next(err))
             .catch((err) => next(err));
     })
-    .delete(authenticate.verifyUser, (req, res, next) => {
+    .delete(cors.corsWithOptions, authenticate.verifyUser, (req, res, next) => {
         Donations.findById(req.params.donationId)
             .then((donation) => {
                 if (donation != null && donation.comments.id(req.params.commentId) != null) {
