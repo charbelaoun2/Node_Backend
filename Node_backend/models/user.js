@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Schema = mongoose.Schema;
 
 
-// https://www.npmjs.com/package/passport-local-mongoose
+
 var passportLocalMongoose = require('passport-local-mongoose');
 var User = new Schema({
     firstname: {
@@ -13,6 +13,15 @@ var User = new Schema({
         type: String,
         default: ''
     },
+    email:{
+        type: String,
+        default: ''
+    },
+    tel : {
+        type: Number,
+        default: ''
+    },
+
 
     admin:   {
         type: Boolean,
