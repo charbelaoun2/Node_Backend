@@ -6,34 +6,7 @@ Issues
 Marketplace
 Explore
  
-@JBakouny 
-Learn Git and GitHub without any code!
-Using the Hello World guide, you’ll start a branch, write comments, and open a pull request.
 
-
-JBakouny
-/
-Mobile_Dev
-1
-00
-Code
-Issues
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-Mobile_Dev/.gitignore
-@JBakouny
-JBakouny Rename node-express-gen-week-2 to final-server
-…
-Latest commit 30014b5 5 days ago
- History
- 1 contributor
-268 lines (203 sloc)  4 KB
-  
 # Logs
 logs
 *.log
