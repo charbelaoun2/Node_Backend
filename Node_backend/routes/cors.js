@@ -2,7 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 
-const whitelist = [' https://donationbackendwebsite.herokuapp.com/','process.env.PORT||http://localhost:3001']
+const whitelist = [' https://donationbackendwebsite.herokuapp.com/',' https://donationfrontendwebsite.herokuapp.com/']
 var corsOptionsDelegate = (req, callback) => {
     var corsOptions;
     console.log(req.header('Origin'));
